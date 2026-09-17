@@ -59,16 +59,19 @@ export default function ContentForm({ initial, onSave, onCancel }: Props) {
     seasonsData:     (initial.seasonsData || []).map(s => ({
       seasonNumber: s.seasonNumber,
       title: s.title || `Season ${s.seasonNumber}`,
-      episodes: (s.episodes || []).map(e => ({
-        episodeNumber: e.episodeNumber,
-        title:         e.title || '',
-        description:   e.description || '',
-        duration:      e.duration || '',
-        isPublished:   e.isPublished ?? true,
-        videoProvider: e.provider || 'YOUTUBE',
-        embedUrl:      e.embedUrl || '',
-        playbackUrl:   e.playbackUrl || '',
-      })),
+      episodes: (s.episodes || []).map(e => {
+        const vid = e.videos?.find(v => v.isPrimary) || e.videos?.[0]
+        return {
+          episodeNumber: e.episodeNumber,
+          title:         e.title || '',
+          description:   e.description || '',
+          duration:      e.duration || '',
+          isPublished:   e.isPublished ?? true,
+          videoProvider: vid?.provider || 'YOUTUBE',
+          embedUrl:      vid?.embedUrl || '',
+          playbackUrl:   vid?.playbackUrl || '',
+        }
+      }),
     })),
   } : { ...BLANK })
 
