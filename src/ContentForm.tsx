@@ -56,7 +56,23 @@ export default function ContentForm({ initial, onSave, onCancel }: Props) {
     videoProvider:   primary?.provider       || 'YOUTUBE',
     embedUrl:        primary?.embedUrl       || '',
     playbackUrl:     primary?.playbackUrl    || '',
-    seasonsData:     (initial.seasonsData || []).map(s => ({ seasonNumber: s.seasonNumber, title: s.title || `Season ${s.seasonNumber}`, episodes: (s.episodes || []).map(e => ({ episodeNumber: e.episodeNumber, title: e.title || '', description: e.description || '', duration: e.duration || '', isPublished: e.isPublished ?? true, videoProvider: e.provider || 'YOUTUBE', embedUrl: e.embedUrl || '', playbackUrl: e.playbackUrl || '' })) })),
+    seasonsData:     (initial.seasonsData || []).map(s => ({
+      seasonNumber: s.seasonNumber,
+      title: s.title || `Season ${s.seasonNumber}`,
+      episodes: (s.episodes || []).map(e => {
+        const video = e.videos?.[0] || { provider: 'YOUTUBE', embedUrl: '', playbackUrl: '' }
+        return {
+          episodeNumber: e.episodeNumber,
+          title: e.title || '',
+          description: e.description || '',
+          duration: e.duration || '',
+          isPublished: e.isPublished ?? true,
+          videoProvider: video.provider || 'YOUTUBE',
+          embedUrl: video.embedUrl || '',
+          playbackUrl: video.playbackUrl || '',
+        }
+      }),
+    })),
   } : { ...BLANK })
 
   const [saving, setSaving] = useState(false)
