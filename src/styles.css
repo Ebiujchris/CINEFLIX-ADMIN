@@ -385,3 +385,106 @@ tbody tr:hover td { background: rgba(255,255,255,.02); }
   .filter-tabs { flex-wrap: wrap; }
   .search-box { min-width: unset; }
 }
+
+/* ── Season / Episode editor ─────────────────────────────────── */
+.series-editor-head {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 16px; margin-bottom: 20px;
+}
+.series-editor-head h3 { margin: 0 0 4px; }
+.empty-seasons-hint { font-size: 12px; color: var(--muted); padding: 12px 0; }
+
+.season-block {
+  border: 1px solid var(--border); border-radius: 9px;
+  overflow: hidden; margin-bottom: 14px;
+}
+.season-block-header {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; padding: 12px 14px; background: var(--bg3);
+  border-bottom: 1px solid var(--border);
+}
+.season-block-title { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; }
+.season-badge {
+  flex-shrink: 0; background: var(--red); color: #fff;
+  font: 700 10px 'Space Grotesk'; padding: 4px 8px; border-radius: 4px;
+}
+.season-title-input {
+  flex: 1; background: transparent; border: 0; border-bottom: 1px solid var(--border);
+  color: var(--text); font: 600 13px 'Space Grotesk'; padding: 4px 2px;
+  outline: none; min-width: 0;
+}
+.season-title-input:focus { border-bottom-color: var(--red); }
+.season-block-actions { display: flex; gap: 8px; flex-shrink: 0; }
+
+.btn-danger-ghost {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 12px; color: #ff6b6b; border: 1px solid rgba(229,9,20,.3);
+  font-weight: 600; font-size: 12px; border-radius: 6px;
+  transition: all .18s;
+}
+.btn-danger-ghost:hover { background: rgba(229,9,20,.1); }
+.btn-ghost.small, .btn-danger-ghost.small { padding: 6px 10px; font-size: 11px; }
+
+.episodes-list { padding: 12px 14px; display: grid; gap: 10px; }
+
+.episode-form-card {
+  background: var(--bg4); border: 1px solid var(--border);
+  border-radius: 8px; padding: 12px; display: grid; gap: 10px;
+}
+.episode-form-header {
+  display: flex; align-items: center; gap: 8px;
+}
+.ep-badge {
+  flex-shrink: 0; background: var(--bg3); color: var(--muted);
+  border: 1px solid var(--border);
+  font: 700 10px 'Space Grotesk'; padding: 3px 7px; border-radius: 4px;
+}
+.ep-title-input {
+  flex: 1; background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 6px; color: var(--text); font-size: 13px;
+  padding: 7px 10px; outline: none; min-width: 0;
+  transition: border-color .18s;
+}
+.ep-title-input:focus { border-color: #555; }
+.ep-num-input {
+  width: 60px; flex-shrink: 0; background: var(--bg3);
+  border: 1px solid var(--border); border-radius: 6px;
+  color: var(--text); font-size: 12px; padding: 7px 8px; outline: none;
+  text-align: center;
+}
+.ep-remove {
+  flex-shrink: 0; width: 28px; height: 28px; border-radius: 5px;
+  display: grid; place-items: center; color: var(--muted);
+  transition: color .18s, background .18s;
+}
+.ep-remove:hover { color: #ff6b6b; background: rgba(229,9,20,.1); }
+
+.ep-desc {
+  width: 100%; background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 6px; color: var(--text); font: inherit; font-size: 12px;
+  padding: 8px 10px; outline: none; resize: vertical; min-height: 56px;
+  transition: border-color .18s;
+}
+.ep-desc:focus { border-color: #555; }
+
+.ep-video-row {
+  display: flex; gap: 8px; align-items: center;
+}
+.ep-provider-select {
+  flex-shrink: 0; width: 130px; background: var(--bg3);
+  border: 1px solid var(--border); border-radius: 6px;
+  color: var(--text); font-size: 12px; padding: 7px 8px; outline: none;
+}
+.ep-url-input {
+  flex: 1; background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 6px; color: var(--text); font-size: 12px;
+  padding: 7px 10px; outline: none; min-width: 0;
+  transition: border-color .18s;
+}
+.ep-url-input:focus { border-color: #555; }
+.ep-duration-input {
+  width: 70px; flex-shrink: 0; background: var(--bg3);
+  border: 1px solid var(--border); border-radius: 6px;
+  color: var(--text); font-size: 12px; padding: 7px 8px; outline: none;
+  text-align: center;
+}

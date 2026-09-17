@@ -59,19 +59,16 @@ export default function ContentForm({ initial, onSave, onCancel }: Props) {
     seasonsData:     (initial.seasonsData || []).map(s => ({
       seasonNumber: s.seasonNumber,
       title: s.title || `Season ${s.seasonNumber}`,
-      episodes: (s.episodes || []).map(e => {
-        const video = e.videos?.[0] || { provider: 'YOUTUBE', embedUrl: '', playbackUrl: '' }
-        return {
-          episodeNumber: e.episodeNumber,
-          title: e.title || '',
-          description: e.description || '',
-          duration: e.duration || '',
-          isPublished: e.isPublished ?? true,
-          videoProvider: video.provider || 'YOUTUBE',
-          embedUrl: video.embedUrl || '',
-          playbackUrl: video.playbackUrl || '',
-        }
-      }),
+      episodes: (s.episodes || []).map(e => ({
+        episodeNumber: e.episodeNumber,
+        title:         e.title || '',
+        description:   e.description || '',
+        duration:      e.duration || '',
+        isPublished:   e.isPublished ?? true,
+        videoProvider: e.provider || 'YOUTUBE',
+        embedUrl:      e.embedUrl || '',
+        playbackUrl:   e.playbackUrl || '',
+      })),
     })),
   } : { ...BLANK })
 
@@ -232,7 +229,109 @@ export default function ContentForm({ initial, onSave, onCancel }: Props) {
               </div>
             </div>
 
-            {form.type === 'SERIES' && <div className="card series-editor"><div className="series-editor-head"><div><h3>Seasons & Episodes</h3><span className="hint">Episode links are managed here for series.</span></div><button className="btn-ghost" type="button" onClick={() => setForm(p => ({ ...p, seasonsData: [...(p.seasonsData || []), newSeason((p.seasonsData || []).length + 1)] }))}><Check size={14}/> Add season</button></div>{(form.seasonsData || []).map((s, si) => <div className="season-block" key={si}><div className="season-head"><label>Season #<input type="number" min={1} value={s.seasonNumber} onChange={e => setForm(p => ({ ...p, seasonsData: p.seasonsData.map((x, i) => i === si ? { ...x, seasonNumber: Number(e.target.value) } : x) }))}/></label><input value={s.title} onChange={e => setForm(p => ({ ...p, seasonsData: p.seasonsData.map((x, i) => i === si ? { ...x, title: e.target.value } : x) }))} placeholder="Season title"/></div>{s.episodes.map((ep, ei) => <div className="episode-form-row" key={ei}><label className="episode-number-field">Episode #<input className="episode-number-input" type="number" min={1} value={ep.episodeNumber} aria-label="Episode number" onChange={e => setForm(p => ({ ...p, seasonsData: p.seasonsData.map((x, i) => i === si ? { ...x, episodes: x.episodes.map((y, j) => j === ei ? { ...y, episodeNumber: Number(e.target.value) } : y) } : x) }))}/></label><div className="episode-fields"><input value={ep.title} onChange={e => setForm(p => ({ ...p, seasonsData: p.seasonsData.map((x, i) => i === si ? { ...x, episodes: x.episodes.map((y, j) => j === ei ? { ...y, title: e.target.value } : y) } : x) }))} placeholder="Episode title"/><textarea value={ep.description} onChange={e => setForm(p => ({ ...p, seasonsData: p.seasonsData.map((x, i) => i === si ? { ...x, episodes: x.episodes.map((y, j) => j === ei ? { ...y, description: e.target.value } : y) } : x) }))} placeholder="Episode description" rows={2}/><input value={ep.embedUrl} onChange={e => setForm(p => ({ ...p, seasonsData: p.seasonsData.map((x, i) => i === si ? { ...x, episodes: x.episodes.map((y, j) => j === ei ? { ...y, embedUrl: e.target.value } : y) } : x) }))} placeholder="Episode embed URL"/></div></div>)}<button className="btn-ghost" type="button" onClick={() => setForm(p => ({ ...p, seasonsData: p.seasonsData.map((x, i) => i === si ? { ...x, episodes: [...x.episodes, newEpisode(x.episodes.length + 1)] } : x) }))}>Add episode</button></div>)}</div>}
+            {form.type === 'SERIES' && (
+              <div className="card">
+                <div className="series-editor-head">
+                  <div><h3>Seasons & Episodes</h3><span className="hint">Add your seasons and episodes with video links.</span></div>
+                  <button className="btn-outline" type="button" onClick={() => setForm(p => ({ ...p, seasonsData: [...(p.seasonsData || []), newSeason((p.seasonsData || []).length + 1)] }))}>+ Add Season</button>
+                </div>
+
+                {(form.seasonsData || []).length === 0 && (
+                  <p className="empty-seasons-hint">No seasons yet. Click "Add Season" to get started.</p>
+                )}
+
+                {(form.seasonsData || []).map((s, si) => (
+                  <div className="season-block" key={si}>
+                    <div className="season-block-header">
+                      <div className="season-block-title">
+                        <span className="season-badge">S{s.seasonNumber}</span>
+                        <input
+                          className="season-title-input"
+                          value={s.title}
+                          onChange={e => setForm(p => ({ ...p, seasonsData: p.seasonsData.map((x, i) => i === si ? { ...x, title: e.target.value } : x) }))}
+                          placeholder={`Season ${s.seasonNumber} title`}
+                        />
+                      </div>
+                      <div className="season-block-actions">
+                        <button className="btn-ghost small" type="button"
+                          onClick={() => setForm(p => ({ ...p, seasonsData: p.seasonsData.map((x, i) => i === si ? { ...x, episodes: [...x.episodes, newEpisode(x.episodes.length + 1)] } : x) }))}>
+                          + Episode
+                        </button>
+                        <button className="btn-danger-ghost small" type="button"
+                          onClick={() => setForm(p => ({ ...p, seasonsData: p.seasonsData.filter((_, i) => i !== si) }))}>
+                          Remove Season
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="episodes-list">
+                      {s.episodes.map((ep, ei) => (
+                        <div className="episode-form-card" key={ei}>
+                          <div className="episode-form-header">
+                            <span className="ep-badge">E{ep.episodeNumber}</span>
+                            <input
+                              className="ep-title-input"
+                              value={ep.title}
+                              onChange={e => setForm(p => ({ ...p, seasonsData: p.seasonsData.map((x, i) => i === si ? { ...x, episodes: x.episodes.map((y, j) => j === ei ? { ...y, title: e.target.value } : y) } : x) }))}
+                              placeholder="Episode title"
+                            />
+                            <input
+                              type="number" min={1} className="ep-num-input"
+                              value={ep.episodeNumber}
+                              onChange={e => setForm(p => ({ ...p, seasonsData: p.seasonsData.map((x, i) => i === si ? { ...x, episodes: x.episodes.map((y, j) => j === ei ? { ...y, episodeNumber: Number(e.target.value) } : y) } : x) }))}
+                            />
+                            <button className="ep-remove" type="button"
+                              onClick={() => setForm(p => ({ ...p, seasonsData: p.seasonsData.map((x, i) => i === si ? { ...x, episodes: x.episodes.filter((_, j) => j !== ei) } : x) }))}>
+                              <X size={13} />
+                            </button>
+                          </div>
+
+                          <textarea
+                            value={ep.description}
+                            onChange={e => setForm(p => ({ ...p, seasonsData: p.seasonsData.map((x, i) => i === si ? { ...x, episodes: x.episodes.map((y, j) => j === ei ? { ...y, description: e.target.value } : y) } : x) }))}
+                            placeholder="Episode description"
+                            rows={2}
+                            className="ep-desc"
+                          />
+
+                          <div className="ep-video-row">
+                            <select
+                              value={ep.videoProvider}
+                              onChange={e => setForm(p => ({ ...p, seasonsData: p.seasonsData.map((x, i) => i === si ? { ...x, episodes: x.episodes.map((y, j) => j === ei ? { ...y, videoProvider: e.target.value } : y) } : x) }))}
+                              className="ep-provider-select"
+                            >
+                              {PROVIDERS.map(pr => <option key={pr}>{pr}</option>)}
+                            </select>
+                            <input
+                              value={ep.embedUrl || ep.playbackUrl}
+                              onChange={e => {
+                                const val = e.target.value
+                                setForm(p => ({ ...p, seasonsData: p.seasonsData.map((x, i) => i === si ? { ...x, episodes: x.episodes.map((y, j) => j === ei ? {
+                                  ...y,
+                                  embedUrl:    ['YOUTUBE','VIMEO','EXTERNAL_EMBED'].includes(y.videoProvider) ? val : '',
+                                  playbackUrl: ['DIRECT_MP4','DIRECT_HLS'].includes(y.videoProvider) ? val : '',
+                                } : y) } : x) }))
+                              }}
+                              placeholder={['DIRECT_MP4','DIRECT_HLS'].includes(ep.videoProvider) ? 'https://…/video.mp4 or .m3u8' : 'https://www.youtube.com/embed/VIDEO_ID'}
+                              className="ep-url-input"
+                            />
+                            <input
+                              value={ep.duration}
+                              onChange={e => setForm(p => ({ ...p, seasonsData: p.seasonsData.map((x, i) => i === si ? { ...x, episodes: x.episodes.map((y, j) => j === ei ? { ...y, duration: e.target.value } : y) } : x) }))}
+                              placeholder="45m"
+                              className="ep-duration-input"
+                            />
+                          </div>
+                        </div>
+                      ))}
+                      {s.episodes.length === 0 && (
+                        <p className="empty-seasons-hint">No episodes yet.</p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
 
             <div className="field-row three">
               <div className="field">
