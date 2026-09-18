@@ -315,7 +315,7 @@ export default function ContentForm({ initial, onSave, onCancel }: Props) {
                                   playbackUrl: ['DIRECT_MP4','DIRECT_HLS'].includes(y.videoProvider) ? val : '',
                                 } : y) } : x) }))
                               }}
-                              placeholder={['DIRECT_MP4','DIRECT_HLS'].includes(ep.videoProvider) ? 'https://…/video.mp4 or .m3u8' : 'https://www.youtube.com/embed/VIDEO_ID'}
+                              placeholder={['DIRECT_MP4','DIRECT_HLS'].includes(ep.videoProvider) ? 'https://…/video.mp4 or .m3u8' : 'https://cinesrc.st/embed/movie/ or /tv/ + ID'}
                               className="ep-url-input"
                             />
                             <input
@@ -413,7 +413,7 @@ export default function ContentForm({ initial, onSave, onCancel }: Props) {
               <div className="field">
                 <label>Embed URL</label>
                 <input value={form.embedUrl} onChange={f('embedUrl')}
-                  placeholder="https://www.youtube.com/embed/VIDEO_ID"/>
+                  placeholder="https://cinesrc.st/embed/movie/ID  or  /tv/ID"/>
               </div>
             )}
             {['DIRECT_MP4','DIRECT_HLS'].includes(form.videoProvider) && (
