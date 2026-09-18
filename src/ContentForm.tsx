@@ -305,19 +305,34 @@ export default function ContentForm({ initial, onSave, onCancel }: Props) {
                             >
                               {PROVIDERS.map(pr => <option key={pr}>{pr}</option>)}
                             </select>
-                            <input
-                              value={ep.embedUrl || ep.playbackUrl}
-                              onChange={e => {
-                                const val = e.target.value
-                                setForm(p => ({ ...p, seasonsData: p.seasonsData.map((x, i) => i === si ? { ...x, episodes: x.episodes.map((y, j) => j === ei ? {
-                                  ...y,
-                                  embedUrl:    ['YOUTUBE','VIMEO','EXTERNAL_EMBED'].includes(y.videoProvider) ? val : '',
-                                  playbackUrl: ['DIRECT_MP4','DIRECT_HLS'].includes(y.videoProvider) ? val : '',
-                                } : y) } : x) }))
-                              }}
-                              placeholder={['DIRECT_MP4','DIRECT_HLS'].includes(ep.videoProvider) ? 'https://…/video.mp4 or .m3u8' : 'https://cinesrc.st/embed/movie/ or /tv/ + ID'}
-                              className="ep-url-input"
-                            />
+                            {ep.videoProvider === 'EXTERNAL_EMBED' ? (
+                              <div className="embed-prefix-wrap ep-url-input">
+                                <span className="embed-prefix">https://cinesrc.st/embed/tv/</span>
+                                <input
+                                  className="embed-id-input"
+                                  value={(ep.embedUrl || '').replace(/^https:\/\/cinesrc\.st\/embed\/(movie|tv)\//, '')}
+                                  onChange={e => {
+                                    const val = e.target.value
+                                    setForm(p => ({ ...p, seasonsData: p.seasonsData.map((x, i) => i === si ? { ...x, episodes: x.episodes.map((y, j) => j === ei ? { ...y, embedUrl: `https://cinesrc.st/embed/tv/${val}`, playbackUrl: '' } : y) } : x) }))
+                                  }}
+                                  placeholder="1339713"
+                                />
+                              </div>
+                            ) : (
+                              <input
+                                value={ep.embedUrl || ep.playbackUrl}
+                                onChange={e => {
+                                  const val = e.target.value
+                                  setForm(p => ({ ...p, seasonsData: p.seasonsData.map((x, i) => i === si ? { ...x, episodes: x.episodes.map((y, j) => j === ei ? {
+                                    ...y,
+                                    embedUrl: ['YOUTUBE','VIMEO'].includes(y.videoProvider) ? val : '',
+                                    playbackUrl: ['DIRECT_MP4','DIRECT_HLS'].includes(y.videoProvider) ? val : '',
+                                  } : y) } : x) }))
+                                }}
+                                placeholder={['DIRECT_MP4','DIRECT_HLS'].includes(ep.videoProvider) ? 'https://…/video.mp4 or .m3u8' : 'https://www.youtube.com/embed/VIDEO_ID'}
+                                className="ep-url-input"
+                              />
+                            )}
                             <input
                               value={ep.duration}
                               onChange={e => setForm(p => ({ ...p, seasonsData: p.seasonsData.map((x, i) => i === si ? { ...x, episodes: x.episodes.map((y, j) => j === ei ? { ...y, duration: e.target.value } : y) } : x) }))}
