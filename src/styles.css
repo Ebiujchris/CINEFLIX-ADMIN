@@ -249,6 +249,7 @@ tbody tr:hover td { background: rgba(255,255,255,.02); }
 
 .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
 .form-col  { display: flex; flex-direction: column; gap: 20px; }
+.series-form-grid { grid-template-columns: 1fr; }
 
 .card { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 24px; display: grid; gap: 18px; }
 .card h3 { font: 600 15px 'Space Grotesk'; padding-bottom: 4px; border-bottom: 1px solid var(--border); }

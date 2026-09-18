@@ -167,7 +167,7 @@ export default function ContentForm({ initial, onSave, onCancel }: Props) {
         </div>
       </div>
 
-      <div className="form-grid">
+      <div className={`form-grid${form.type === 'SERIES' ? ' series-form-grid' : ''}`}>
         {/* LEFT */}
         <div className="form-col">
           <div className="card">
