@@ -276,6 +276,20 @@ tbody tr:hover td { background: rgba(255,255,255,.02); }
 .field input.err, .field textarea.err { border-color: rgba(229,9,20,.5); }
 .field textarea { resize: vertical; min-height: 80px; }
 .field-err { font-size: 11px; color: #ff8080; }
+.embed-prefix-wrap {
+  display: flex; min-width: 0; border: 1px solid var(--border);
+  border-radius: 7px; overflow: hidden; background: var(--bg3);
+}
+.embed-prefix {
+  display: flex; align-items: center; flex: 0 0 auto;
+  padding: 10px 0 10px 13px; color: var(--muted); font-size: 13px;
+  white-space: nowrap; user-select: none;
+}
+.embed-id-input {
+  min-width: 80px; border: 0 !important; border-radius: 0 !important;
+  padding-left: 4px !important; background: transparent !important;
+}
+.embed-prefix-wrap:focus-within { border-color: #555; }
 
 .field-row { display: flex; gap: 12px; }
 .field-row .field { flex: 1; }

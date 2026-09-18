@@ -14,7 +14,7 @@ const BLANK = {
   year: new Date().getFullYear(), duration:'', genre:'Drama, Thriller, Action',
   rating:'13+', imdb:'', director:'', cast:'', tags:'',
   badge:'', seasons:'', isPublished: false,
-  videoProvider:'YOUTUBE', embedUrl:'', playbackUrl:'',
+  videoProvider:'EXTERNAL_EMBED', embedUrl:'', playbackUrl:'',
   tmdbId: '',
   seasonsData: [] as SeasonForm[],
 }
@@ -412,8 +412,20 @@ export default function ContentForm({ initial, onSave, onCancel }: Props) {
             {['YOUTUBE','VIMEO','EXTERNAL_EMBED'].includes(form.videoProvider) && (
               <div className="field">
                 <label>Embed URL</label>
-                <input value={form.embedUrl} onChange={f('embedUrl')}
-                  placeholder="https://cinesrc.st/embed/movie/ID  or  /tv/ID"/>
+                {form.videoProvider === 'EXTERNAL_EMBED' ? (
+                  <div className="embed-prefix-wrap">
+                    <span className="embed-prefix">https://cinesrc.st/embed/{form.type === 'SERIES' ? 'tv' : 'movie'}/</span>
+                    <input
+                      className="embed-id-input"
+                      value={form.embedUrl.replace(/^https:\/\/cinesrc\.st\/embed\/(movie|tv)\//, '')}
+                      onChange={e => setForm(p => ({ ...p, embedUrl: `https://cinesrc.st/embed/${p.type === 'SERIES' ? 'tv' : 'movie'}/${e.target.value}` }))}
+                      placeholder="1339713"
+                    />
+                  </div>
+                ) : (
+                  <input value={form.embedUrl} onChange={f('embedUrl')}
+                    placeholder="https://www.youtube.com/embed/VIDEO_ID"/>
+                )}
               </div>
             )}
             {['DIRECT_MP4','DIRECT_HLS'].includes(form.videoProvider) && (
