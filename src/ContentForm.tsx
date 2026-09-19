@@ -7,6 +7,9 @@ const PROVIDERS = ['YOUTUBE', 'VIMEO', 'DIRECT_MP4', 'DIRECT_HLS', 'EXTERNAL_EMB
 const GENRES    = ['Action','Adventure','Comedy','Crime','Documentary','Drama','Horror','Music','Romance','Sci-Fi','Thriller']
 const RATINGS   = ['G','PG','PG-13','13+','16+','18+','NR']
 const BADGES    = ['','NEW','TOP 10','TRENDING','CINEFLIX ORIGINAL','FEATURED']
+type EmbedMode = 'cinesrc' | 'custom'
+
+const isCineSrcUrl = (value: string) => /^https:\/\/cinesrc\.st\/embed\/(movie|tv)\//.test(value)
 
 const BLANK = {
   type:'MOVIE', title:'', description:'', longDescription:'',
@@ -19,9 +22,9 @@ const BLANK = {
   seasonsData: [] as SeasonForm[],
 }
 
-type EpisodeForm = { episodeNumber: number; title: string; description: string; duration: string; isPublished: boolean; videoProvider: string; embedUrl: string; playbackUrl: string }
+type EpisodeForm = { episodeNumber: number; title: string; description: string; duration: string; isPublished: boolean; videoProvider: string; embedUrl: string; playbackUrl: string; embedMode: EmbedMode }
 type SeasonForm = { seasonNumber: number; title: string; episodes: EpisodeForm[] }
-const newEpisode = (number = 1): EpisodeForm => ({ episodeNumber: number, title: '', description: '', duration: '', isPublished: true, videoProvider: 'YOUTUBE', embedUrl: '', playbackUrl: '' })
+const newEpisode = (number = 1): EpisodeForm => ({ episodeNumber: number, title: '', description: '', duration: '', isPublished: true, videoProvider: 'YOUTUBE', embedUrl: '', playbackUrl: '', embedMode: 'cinesrc' })
 const newSeason = (number = 1): SeasonForm => ({ seasonNumber: number, title: `Season ${number}`, episodes: [newEpisode()] })
 
 type Props = {
@@ -32,6 +35,7 @@ type Props = {
 
 export default function ContentForm({ initial, onSave, onCancel }: Props) {
   const primary = initial?.videos.find(v => v.isPrimary) || initial?.videos[0]
+  const [embedMode, setEmbedMode] = useState<EmbedMode>(() => primary?.embedUrl && !isCineSrcUrl(primary.embedUrl) ? 'custom' : 'cinesrc')
 
   const [form, setForm] = useState(initial ? {
     type:            initial.type,
@@ -70,6 +74,7 @@ export default function ContentForm({ initial, onSave, onCancel }: Props) {
           videoProvider: vid?.provider || 'YOUTUBE',
           embedUrl:      vid?.embedUrl || '',
           playbackUrl:   vid?.playbackUrl || '',
+          embedMode:     vid?.embedUrl && !isCineSrcUrl(vid.embedUrl) ? 'custom' : 'cinesrc',
         }
       }),
     })),
@@ -306,17 +311,19 @@ export default function ContentForm({ initial, onSave, onCancel }: Props) {
                               {PROVIDERS.map(pr => <option key={pr}>{pr}</option>)}
                             </select>
                             {ep.videoProvider === 'EXTERNAL_EMBED' ? (
-                              <div className="embed-prefix-wrap ep-url-input">
-                                <span className="embed-prefix">https://cinesrc.st/embed/tv/</span>
-                                <input
-                                  className="embed-id-input"
-                                  value={(ep.embedUrl || '').replace(/^https:\/\/cinesrc\.st\/embed\/(movie|tv)\//, '')}
-                                  onChange={e => {
-                                    const val = e.target.value
-                                    setForm(p => ({ ...p, seasonsData: p.seasonsData.map((x, i) => i === si ? { ...x, episodes: x.episodes.map((y, j) => j === ei ? { ...y, embedUrl: `https://cinesrc.st/embed/tv/${val}`, playbackUrl: '' } : y) } : x) }))
-                                  }}
-                                  placeholder="1339713"
-                                />
+                              <div className="embed-choice">
+                                <div className="embed-mode-toggle">
+                                  <button type="button" className={ep.embedMode === 'cinesrc' ? 'active' : ''} onClick={() => setForm(p => ({ ...p, seasonsData: p.seasonsData.map((x, i) => i === si ? { ...x, episodes: x.episodes.map((y, j) => j === ei ? { ...y, embedMode: 'cinesrc', embedUrl: isCineSrcUrl(y.embedUrl || '') ? y.embedUrl : `https://cinesrc.st/embed/tv/${y.embedUrl || ''}` } : y) } : x) }))}>CINE SRC ID</button>
+                                  <button type="button" className={ep.embedMode === 'custom' ? 'active' : ''} onClick={() => setForm(p => ({ ...p, seasonsData: p.seasonsData.map((x, i) => i === si ? { ...x, episodes: x.episodes.map((y, j) => j === ei ? { ...y, embedMode: 'custom', embedUrl: isCineSrcUrl(y.embedUrl || '') ? '' : y.embedUrl } : y) } : x) }))}>Custom URL</button>
+                                </div>
+                                {ep.embedMode === 'cinesrc' ? (
+                                  <div className="embed-prefix-wrap">
+                                    <span className="embed-prefix">https://cinesrc.st/embed/tv/</span>
+                                    <input className="embed-id-input" value={(ep.embedUrl || '').replace(/^https:\/\/cinesrc\.st\/embed\/(movie|tv)\//, '')} onChange={e => setForm(p => ({ ...p, seasonsData: p.seasonsData.map((x, i) => i === si ? { ...x, episodes: x.episodes.map((y, j) => j === ei ? { ...y, embedUrl: `https://cinesrc.st/embed/tv/${e.target.value}`, playbackUrl: '' } : y) } : x) }))} placeholder="1339713" />
+                                  </div>
+                                ) : (
+                                  <input className="custom-embed-input" value={ep.embedUrl || ''} onChange={e => setForm(p => ({ ...p, seasonsData: p.seasonsData.map((x, i) => i === si ? { ...x, episodes: x.episodes.map((y, j) => j === ei ? { ...y, embedUrl: e.target.value, playbackUrl: '' } : y) } : x) }))} placeholder="https://another-provider.com/embed/..." />
+                                )}
                               </div>
                             ) : (
                               <input
@@ -428,14 +435,19 @@ export default function ContentForm({ initial, onSave, onCancel }: Props) {
               <div className="field">
                 <label>Embed URL</label>
                 {form.videoProvider === 'EXTERNAL_EMBED' ? (
-                  <div className="embed-prefix-wrap">
-                    <span className="embed-prefix">https://cinesrc.st/embed/{form.type === 'SERIES' ? 'tv' : 'movie'}/</span>
-                    <input
-                      className="embed-id-input"
-                      value={form.embedUrl.replace(/^https:\/\/cinesrc\.st\/embed\/(movie|tv)\//, '')}
-                      onChange={e => setForm(p => ({ ...p, embedUrl: `https://cinesrc.st/embed/${p.type === 'SERIES' ? 'tv' : 'movie'}/${e.target.value}` }))}
-                      placeholder="1339713"
-                    />
+                  <div className="embed-choice">
+                    <div className="embed-mode-toggle">
+                      <button type="button" className={embedMode === 'cinesrc' ? 'active' : ''} onClick={() => { setEmbedMode('cinesrc'); setForm(p => ({ ...p, embedUrl: isCineSrcUrl(p.embedUrl) ? p.embedUrl : `https://cinesrc.st/embed/${p.type === 'SERIES' ? 'tv' : 'movie'}/${p.embedUrl || ''}` })) }}>CINE SRC ID</button>
+                      <button type="button" className={embedMode === 'custom' ? 'active' : ''} onClick={() => { setEmbedMode('custom'); setForm(p => ({ ...p, embedUrl: isCineSrcUrl(p.embedUrl) ? '' : p.embedUrl })) }}>Custom URL</button>
+                    </div>
+                    {embedMode === 'cinesrc' ? (
+                      <div className="embed-prefix-wrap">
+                        <span className="embed-prefix">https://cinesrc.st/embed/{form.type === 'SERIES' ? 'tv' : 'movie'}/</span>
+                        <input className="embed-id-input" value={form.embedUrl.replace(/^https:\/\/cinesrc\.st\/embed\/(movie|tv)\//, '')} onChange={e => setForm(p => ({ ...p, embedUrl: `https://cinesrc.st/embed/${p.type === 'SERIES' ? 'tv' : 'movie'}/${e.target.value}` }))} placeholder="1339713" />
+                      </div>
+                    ) : (
+                      <input className="custom-embed-input" value={form.embedUrl} onChange={f('embedUrl')} placeholder="https://another-provider.com/embed/..." />
+                    )}
                   </div>
                 ) : (
                   <input value={form.embedUrl} onChange={f('embedUrl')}

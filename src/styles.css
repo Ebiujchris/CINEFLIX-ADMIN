@@ -291,6 +291,13 @@ tbody tr:hover td { background: rgba(255,255,255,.02); }
   padding-left: 4px !important; background: transparent !important;
 }
 .embed-prefix-wrap:focus-within { border-color: #555; }
+.embed-choice { display: grid; gap: 8px; }
+.embed-mode-toggle { display: inline-flex; width: fit-content; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+.embed-mode-toggle button { padding: 7px 10px; color: var(--muted); background: var(--bg3); font-size: 11px; font-weight: 600; }
+.embed-mode-toggle button + button { border-left: 1px solid var(--border); }
+.embed-mode-toggle button.active { color: #fff; background: rgba(229,9,20,.2); }
+.custom-embed-input { width: 100%; min-height: 38px; background: var(--bg3); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 12px; padding: 9px 10px; outline: none; }
+.custom-embed-input:focus { border-color: #555; }
 
 .field-row { display: flex; gap: 12px; }
 .field-row .field { flex: 1; }
