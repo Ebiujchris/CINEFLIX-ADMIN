@@ -94,7 +94,6 @@ export default function ContentForm({ initial, onSave, onCancel }: Props) {
     const e: Record<string,string> = {}
     if (!form.title.trim())       e.title       = 'Title is required'
     if (!form.description.trim()) e.description = 'Short description is required'
-    if (form.genre.split(',').map(g => g.trim()).filter(Boolean).length < 3) e.genre = 'Choose at least 3 genres'
     setErrors(e)
     return Object.keys(e).length === 0
   }
@@ -219,7 +218,7 @@ export default function ContentForm({ initial, onSave, onCancel }: Props) {
 
             <div className="field-row three">
               <div className="field genre-field">
-                <label>Genres <span className="req">*</span> <span className="hint">choose at least 3</span></label>
+                <label>Genres <span className="hint">optional</span></label>
                 <div className="genre-options">{GENRES.map(g => { const selected = form.genre.split(',').map(v => v.trim()).includes(g); return <button type="button" key={g} className={selected ? 'selected' : ''} onClick={() => { const values = form.genre.split(',').map(v => v.trim()).filter(Boolean); setForm(p => ({ ...p, genre: (selected ? values.filter(v => v !== g) : [...values, g]).join(', ') })) }}>{selected && <Check size={12}/>} {g}</button> })}</div>
                 {errors.genre && <span className="field-err">{errors.genre}</span>}
               </div>
