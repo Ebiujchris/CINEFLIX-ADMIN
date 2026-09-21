@@ -2,10 +2,11 @@ import { useEffect, useState } from 'react'
 import {
   Film, Tv, Plus, Pencil, Trash2, Eye, EyeOff,
   LogOut, LayoutDashboard, Check, AlertCircle,
-  X, Search,
+  X, Search, Users,
 } from 'lucide-react'
 import { fetchAllContent, updateContent, deleteContent, adminLogout, getAdminUser } from './api'
 import ContentForm from './ContentForm'
+import UsersPage from './UsersPage'
 
 export type AdminContent = {
   id: string; type: string; title: string; slug: string
@@ -23,9 +24,11 @@ export type AdminContent = {
 type Toast = { msg: string; ok: boolean }
 type View   = 'list' | 'new' | 'edit'
 type Filter = 'ALL' | 'MOVIE' | 'SERIES' | 'DRAFT'
+type Section = 'content' | 'users'
 
 export default function Dashboard() {
   const user = getAdminUser()
+  const [section,    setSection]    = useState<Section>('content')
   const [content,    setContent]    = useState<AdminContent[]>([])
   const [loading,    setLoading]    = useState(true)
   const [view,       setView]       = useState<View>('list')
@@ -116,11 +119,14 @@ export default function Dashboard() {
         <p className="sidebar-sub">Admin Portal</p>
 
         <nav className="sidebar-nav">
-          <button className={view === 'list' ? 'active' : ''} onClick={() => setView('list')}>
+          <button className={section === 'content' && view === 'list' ? 'active' : ''} onClick={() => { setSection('content'); setView('list') }}>
             <LayoutDashboard size={16} /> Dashboard
           </button>
-          <button onClick={() => { setEditTarget(null); setView('new') }}>
+          <button onClick={() => { setSection('content'); setEditTarget(null); setView('new') }}>
             <Plus size={16} /> Add Content
+          </button>
+          <button className={section === 'users' ? 'active' : ''} onClick={() => setSection('users')}>
+            <Users size={16} /> Users
           </button>
         </nav>
 
@@ -140,7 +146,8 @@ export default function Dashboard() {
 
       {/* ── MAIN ── */}
       <main className="main">
-        {view === 'list' && (
+        {section === 'users' && <UsersPage />}
+        {section === 'content' && view === 'list' && (
           <>
             <div className="page-header">
               <div>
@@ -255,7 +262,7 @@ export default function Dashboard() {
           </>
         )}
 
-        {(view === 'new' || view === 'edit') && (
+        {section === 'content' && (view === 'new' || view === 'edit') && (
           <ContentForm initial={editTarget} onSave={handleSave} onCancel={() => setView('list')} />
         )}
       </main>

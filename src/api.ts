@@ -81,3 +81,18 @@ export async function setupAdmin(email: string, password: string, name: string) 
   if (!res.ok) throw new Error(data.error)
   return data
 }
+
+export async function fetchAllUsers(search = '') {
+  const url = search ? `${BASE}/api/admin/users?search=${encodeURIComponent(search)}` : `${BASE}/api/admin/users`
+  const res = await fetch(url, { headers: authHeaders() })
+  const data = await res.json()
+  if (!res.ok) throw new Error(data.error)
+  return data
+}
+
+export async function deleteUser(id: string) {
+  const res = await fetch(`${BASE}/api/admin/users/${id}`, { method: 'DELETE', headers: authHeaders() })
+  const data = await res.json()
+  if (!res.ok) throw new Error(data.error)
+  return data
+}
