@@ -677,6 +677,7 @@ tbody tr:hover td { background: rgba(255,255,255,.02); }
   border: 1px solid transparent; transition: all .2s;
 }
 .act:hover { color: var(--text); background: rgba(255,255,255,.08); }
-.act.sub:hover { color: #4ade80; border-color: rgba(16,185,129,.3); }
+.act.activate:hover { color: #4ade80; border-color: rgba(16,185,129,.3); }
+.act.sub:hover { color: #fbbf24; border-color: rgba(245,197,24,.3); }
 .act.delete:hover { color: #ff6b6b; border-color: rgba(229,9,20,.3); }
 .act:disabled { opacity: .5; cursor: wait; }

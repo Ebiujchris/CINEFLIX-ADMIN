@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import { Search, Trash2, User, AlertCircle, Check, X, Mail, Calendar, Zap } from 'lucide-react'
-import { fetchAllUsers, deleteUser } from './api'
+import { Search, Trash2, User, AlertCircle, Check, X, Mail, Calendar, Zap, Wifi } from 'lucide-react'
+import { fetchAllUsers, deleteUser, activateSubscription } from './api'
 import SubscriptionModal from './SubscriptionModal'
 
 type AdminUser = {
@@ -21,6 +21,7 @@ export default function UsersPage() {
   const [deleting, setDeleting] = useState<string | null>(null)
   const [toast,    setToast]    = useState<Toast | null>(null)
   const [selectedUser, setSelectedUser] = useState<AdminUser | null>(null)
+  const [activating, setActivating] = useState<string | null>(null)
 
   const showToast = (msg: string, ok = true) => {
     setToast({ msg, ok })
@@ -54,6 +55,18 @@ export default function UsersPage() {
       showToast('User deleted')
     } catch (e: unknown) { showToast((e as Error).message, false) }
     finally { setDeleting(null) }
+  }
+
+  const handleQuickActivate = async (user: AdminUser) => {
+    setActivating(user.id)
+    try {
+      await activateSubscription(user.id, 30)
+      showToast(`Subscription activated for ${user.name}`)
+    } catch (e: unknown) {
+      showToast((e as Error).message, false)
+    } finally {
+      setActivating(null)
+    }
   }
 
   const fmt = (d: string) => new Date(d).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
@@ -131,6 +144,14 @@ export default function UsersPage() {
                   <td className="cell-muted">{u._count.progress} entries</td>
                   <td>
                     <div className="action-buttons">
+                      <button
+                        className="act activate"
+                        onClick={() => handleQuickActivate(u)}
+                        disabled={activating === u.id}
+                        title="Activate subscription (30 days)"
+                      >
+                        {activating === u.id ? <span className="spinner sm" /> : <Wifi size={14} />}
+                      </button>
                       <button
                         className="act sub"
                         onClick={() => setSelectedUser(u)}
