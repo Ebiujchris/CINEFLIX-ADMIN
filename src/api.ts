@@ -96,3 +96,42 @@ export async function deleteUser(id: string) {
   if (!res.ok) throw new Error(data.error)
   return data
 }
+
+export async function fetchUserSubscription(userId: string) {
+  const res = await fetch(`${BASE}/api/admin/subscriptions/${userId}`, { headers: authHeaders() })
+  const data = await res.json()
+  if (!res.ok) throw new Error(data.error)
+  return data
+}
+
+export async function activateSubscription(userId: string, daysFromNow = 30) {
+  const res = await fetch(`${BASE}/api/admin/subscriptions/${userId}/activate`, {
+    method: 'POST',
+    headers: authHeaders(),
+    body: JSON.stringify({ daysFromNow }),
+  })
+  const data = await res.json()
+  if (!res.ok) throw new Error(data.error)
+  return data
+}
+
+export async function extendSubscription(userId: string, days = 30) {
+  const res = await fetch(`${BASE}/api/admin/subscriptions/${userId}/extend`, {
+    method: 'POST',
+    headers: authHeaders(),
+    body: JSON.stringify({ days }),
+  })
+  const data = await res.json()
+  if (!res.ok) throw new Error(data.error)
+  return data
+}
+
+export async function expireSubscription(userId: string) {
+  const res = await fetch(`${BASE}/api/admin/subscriptions/${userId}/expire`, {
+    method: 'POST',
+    headers: authHeaders(),
+  })
+  const data = await res.json()
+  if (!res.ok) throw new Error(data.error)
+  return data
+}

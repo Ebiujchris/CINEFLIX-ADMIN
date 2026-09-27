@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
-import { Search, Trash2, User, AlertCircle, Check, X, Mail, Calendar } from 'lucide-react'
+import { Search, Trash2, User, AlertCircle, Check, X, Mail, Calendar, Zap } from 'lucide-react'
 import { fetchAllUsers, deleteUser } from './api'
+import SubscriptionModal from './SubscriptionModal'
 
 type AdminUser = {
   id: string
@@ -19,6 +20,7 @@ export default function UsersPage() {
   const [search,   setSearch]   = useState('')
   const [deleting, setDeleting] = useState<string | null>(null)
   const [toast,    setToast]    = useState<Toast | null>(null)
+  const [selectedUser, setSelectedUser] = useState<AdminUser | null>(null)
 
   const showToast = (msg: string, ok = true) => {
     setToast({ msg, ok })
@@ -128,20 +130,39 @@ export default function UsersPage() {
                   <td className="cell-muted">{u._count.watchlist} titles</td>
                   <td className="cell-muted">{u._count.progress} entries</td>
                   <td>
-                    <button
-                      className="act delete"
-                      onClick={() => handleDelete(u)}
-                      disabled={deleting === u.id}
-                      title="Delete user"
-                    >
-                      {deleting === u.id ? <span className="spinner sm" /> : <Trash2 size={14} />}
-                    </button>
+                    <div className="action-buttons">
+                      <button
+                        className="act sub"
+                        onClick={() => setSelectedUser(u)}
+                        title="Manage subscription"
+                      >
+                        <Zap size={14} />
+                      </button>
+                      <button
+                        className="act delete"
+                        onClick={() => handleDelete(u)}
+                        disabled={deleting === u.id}
+                        title="Delete user"
+                      >
+                        {deleting === u.id ? <span className="spinner sm" /> : <Trash2 size={14} />}
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
+      )}
+
+      {/* Subscription Modal */}
+      {selectedUser && (
+        <SubscriptionModal
+          userId={selectedUser.id}
+          userName={selectedUser.name}
+          onClose={() => setSelectedUser(null)}
+          onUpdate={() => load(search)}
+        />
       )}
     </div>
   )
