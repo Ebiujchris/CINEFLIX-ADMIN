@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { X, AlertCircle, Check, Clock, Zap } from 'lucide-react'
 import { fetchUserSubscription, activateSubscription, extendSubscription, expireSubscription } from './api'
 
@@ -34,7 +34,7 @@ export default function SubscriptionModal({ userId, userName, onClose, onUpdate 
     setTimeout(() => setToast(null), 3000)
   }
 
-  useState(() => {
+  useEffect(() => {
     loadSubscription()
   }, [userId])
 
