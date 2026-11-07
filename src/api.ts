@@ -90,6 +90,13 @@ export async function fetchAllUsers(search = '') {
   return data
 }
 
+export async function fetchUserDetails(id: string) {
+  const res = await fetch(`${BASE}/api/admin/users/${id}`, { headers: authHeaders() })
+  const data = await res.json()
+  if (!res.ok) throw new Error(data.error)
+  return data
+}
+
 export async function deleteUser(id: string) {
   const res = await fetch(`${BASE}/api/admin/users/${id}`, { method: 'DELETE', headers: authHeaders() })
   const data = await res.json()

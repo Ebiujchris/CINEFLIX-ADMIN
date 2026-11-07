@@ -544,6 +544,30 @@ tbody tr:hover td { background: rgba(255,255,255,.02); }
   display: grid; place-items: center; font-weight: 700; font-size: 13px;
 }
 .user-email-cell { display: flex; align-items: center; gap: 5px; }
+.watch-history-toggle {
+  display: inline-flex; align-items: center; gap: 5px;
+  color: #b7c5d6; font-size: 12px; font-weight: 600;
+}
+.watch-history-toggle:hover { color: #fff; }
+.watch-history-row td { padding: 0 16px 14px; background: rgba(255,255,255,.02); }
+.watch-history-list { display: grid; gap: 8px; }
+.watch-history-item {
+  display: grid; grid-template-columns: minmax(180px, 1fr) minmax(150px, .7fr) auto;
+  align-items: center; gap: 16px; padding: 11px 14px;
+  border: 1px solid var(--border); border-radius: 8px; background: var(--bg2);
+}
+.watch-history-title { display: grid; gap: 3px; }
+.watch-history-title strong { font-size: 13px; }
+.watch-history-title span, .watch-history-progress, .watch-history-date, .watch-history-empty {
+  color: var(--muted); font-size: 11px;
+}
+.watch-history-progress { display: flex; flex-direction: column; gap: 3px; }
+.watch-history-date { display: flex; align-items: center; gap: 5px; white-space: nowrap; }
+.watch-history-empty { display: flex; align-items: center; gap: 8px; padding: 12px 0; }
+@media (max-width: 640px) {
+  .watch-history-item { grid-template-columns: 1fr; align-items: start; gap: 6px; }
+  .watch-history-date { white-space: normal; }
+}
 
 
 /* ── SUBSCRIPTION MODAL ──────────────────────────────────────── */

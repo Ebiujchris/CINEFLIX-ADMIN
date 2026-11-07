@@ -1,7 +1,18 @@
-import { useEffect, useState } from 'react'
-import { Search, Trash2, User, AlertCircle, Check, X, Mail, Calendar, Zap, Wifi } from 'lucide-react'
-import { fetchAllUsers, deleteUser, activateSubscription } from './api'
+import { Fragment, useEffect, useState } from 'react'
+import { Search, Trash2, User, AlertCircle, Check, X, Mail, Calendar, Zap, Wifi, ChevronDown, ChevronUp, Clock } from 'lucide-react'
+import { fetchAllUsers, fetchUserDetails, deleteUser, activateSubscription } from './api'
 import SubscriptionModal from './SubscriptionModal'
+
+type WatchProgressEntry = {
+  id: string
+  contentId: string
+  episodeId: string
+  position: number
+  duration: number
+  completed: boolean
+  updatedAt: string
+  content: { id: string; title: string; type: string }
+}
 
 type AdminUser = {
   id: string
@@ -22,6 +33,9 @@ export default function UsersPage() {
   const [toast,    setToast]    = useState<Toast | null>(null)
   const [selectedUser, setSelectedUser] = useState<AdminUser | null>(null)
   const [activating, setActivating] = useState<string | null>(null)
+  const [expandedUserId, setExpandedUserId] = useState<string | null>(null)
+  const [watchHistory, setWatchHistory] = useState<Record<string, WatchProgressEntry[]>>({})
+  const [historyLoading, setHistoryLoading] = useState<string | null>(null)
 
   const showToast = (msg: string, ok = true) => {
     setToast({ msg, ok })
@@ -69,7 +83,28 @@ export default function UsersPage() {
     }
   }
 
+  const toggleWatchHistory = async (user: AdminUser) => {
+    if (expandedUserId === user.id) {
+      setExpandedUserId(null)
+      return
+    }
+
+    setExpandedUserId(user.id)
+
+    setHistoryLoading(user.id)
+    try {
+      const details = await fetchUserDetails(user.id)
+      setWatchHistory(current => ({ ...current, [user.id]: details.progress }))
+    } catch (e: unknown) {
+      showToast((e as Error).message, false)
+      setExpandedUserId(null)
+    } finally {
+      setHistoryLoading(null)
+    }
+  }
+
   const fmt = (d: string) => new Date(d).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
+  const fmtPosition = (seconds: number) => `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`
 
   return (
     <div>
@@ -123,7 +158,8 @@ export default function UsersPage() {
             </thead>
             <tbody>
               {users.map(u => (
-                <tr key={u.id}>
+                <Fragment key={u.id}>
+                <tr>
                   <td>
                     <div className="user-cell">
                       <div className="user-avatar-sm">{u.name[0]?.toUpperCase()}</div>
@@ -141,7 +177,12 @@ export default function UsersPage() {
                     </span>
                   </td>
                   <td className="cell-muted">{u._count.watchlist} titles</td>
-                  <td className="cell-muted">{u._count.progress} entries</td>
+                  <td>
+                    <button className="watch-history-toggle" onClick={() => toggleWatchHistory(u)} aria-expanded={expandedUserId === u.id}>
+                      {u._count.progress} {u._count.progress === 1 ? 'entry' : 'entries'}
+                      {expandedUserId === u.id ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
+                    </button>
+                  </td>
                   <td>
                     <div className="action-buttons">
                       <button
@@ -170,6 +211,37 @@ export default function UsersPage() {
                     </div>
                   </td>
                 </tr>
+                {expandedUserId === u.id && (
+                  <tr className="watch-history-row">
+                    <td colSpan={6}>
+                      {historyLoading === u.id ? (
+                        <div className="watch-history-empty"><span className="spinner sm" /> Loading watch history…</div>
+                      ) : watchHistory[u.id]?.length ? (
+                        <div className="watch-history-list">
+                          {watchHistory[u.id].map(entry => {
+                            const percent = entry.duration > 0 ? Math.min(100, Math.round(entry.position / entry.duration * 100)) : 0
+                            return (
+                              <div className="watch-history-item" key={entry.id}>
+                                <div className="watch-history-title">
+                                  <strong>{entry.content.title}</strong>
+                                  <span>{entry.content.type === 'SERIES' ? 'Series' : 'Movie'}</span>
+                                </div>
+                                <div className="watch-history-progress">
+                                  <span>{entry.completed ? 'Completed' : `${percent}% watched`}</span>
+                                  {entry.duration > 0 && <span>{fmtPosition(entry.position)} / {fmtPosition(entry.duration)}</span>}
+                                </div>
+                                <span className="watch-history-date"><Clock size={12} /> {new Date(entry.updatedAt).toLocaleString()}</span>
+                              </div>
+                            )
+                          })}
+                        </div>
+                      ) : (
+                        <div className="watch-history-empty">No watch history recorded.</div>
+                      )}
+                    </td>
+                  </tr>
+                )}
+                </Fragment>
               ))}
             </tbody>
           </table>
